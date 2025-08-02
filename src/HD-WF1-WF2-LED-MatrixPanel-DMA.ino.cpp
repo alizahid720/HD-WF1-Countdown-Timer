@@ -7,8 +7,8 @@
 #include <Adafruit_GFX.h>
 #include <Bounce2.h>
 
-#define PANEL_RES_X 64
-#define PANEL_RES_Y 32
+#define PANEL_RES_X 96
+#define PANEL_RES_Y 16
 #define PANEL_CHAIN 1
 #define START_BUTTON PUSH_BUTTON_PIN // GPIO 11
 #define RESET_BUTTON 12 // GPIO 12 for reset button
@@ -66,8 +66,8 @@ void setup() {
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     String html = "<!DOCTYPE html><html><body><h2>Countdown Timer</h2>"
                   "<form action='/set' method='POST'>"
-                  "Time (sec): <input type='number' name='time'><br>"
-                  "Message: <input type='text' name='msg'><br>"
+                  "Time (sec): <input type='number' name='time' min='1' required><br>"
+                  "Message: <input type='text' name='msg' maxlength='15' required><br>"
                   "<input type='submit' value='Go'>"
                   "</form></body></html>";
     request->send(200, "text/html", html);
@@ -101,11 +101,11 @@ void loop() {
     if (elapsed < duration) {
       int seconds = (duration - elapsed) / 1000;
       dma_display->clearScreen();
-      dma_display->setCursor(10, 10);
+      dma_display->setCursor(10, 4); // Adjusted for 96x16
       dma_display->print(String(seconds / 60) + ":" + (seconds % 60 < 10 ? "0" : "") + String(seconds % 60));
     } else {
       dma_display->clearScreen();
-      dma_display->setCursor(0, 10);
+      dma_display->setCursor(0, 4); // Adjusted for 96x16
       dma_display->print(message);
       counting = false;
     }
