@@ -1,155 +1,107 @@
-HD-WF1 Countdown Timer Firmware
-Overview
-This firmware runs on the HD-WF1 (ESP32-S2) controller with a 64x32 HUB75 LED panel. It implements a countdown timer with the following features:
+## Overview
+This firmware runs on the HD-WF1 (ESP32-S2) controller with a **96x16 HUB75 LED panel**. It implements a countdown timer with:
+- **Web Interface**: Set timer duration (seconds) and custom message (max 15 characters) via phone/PC browser.
+- **Buttons**: Start countdown (GPIO 11, existing button) and reset timer/display (GPIO 12, optional wiring).
+- **Display**: Shows countdown in MM:SS format; displays message when timer reaches zero.
 
-Web Interface: Set timer duration (in seconds) and a custom message via a phone browser.
-Buttons: Start the countdown (GPIO 11, existing button) and reset the timer/display (GPIO 12, to be wired).
-Display: Shows the countdown in MM:SS format; displays the custom message when the timer reaches zero.
+## Requirements
+### Hardware
+- HD-WF1 controller with a **96x16 HUB75 LED panel** (e.g., 96x20cm display, 16-pin ribbon cable to 75EX1 port).
+- Push button on GPIO 11 (pre-installed).
+- Push button for GPIO 12 (reset, optional; requires wiring).
+- 5V 4A power supply (Micro-USB or 5V connector, AU plug).
+- USB-A to USB-A cable for flashing (data-capable, included with sign).
+- 2.4GHz Wi-Fi network (ESP32-S2 does not support 5GHz).
 
-Requirements
-Hardware
+### Software
+- Visual Studio Code with PlatformIO extension.
+- Project files (in this repository).
 
-HD-WF1 controller with a 64x32 HUB75 LED panel connected to the 75EX1 port (16-pin ribbon cable).
-Existing push button on GPIO 11 (start).
-Additional push button for GPIO 12 (reset) with a 10kΩ pull-up resistor.
-5V 4A power supply (Micro-USB or 5V connector).
-USB-A to USB-A cable for flashing.
-2.4GHz Wi-Fi network (ESP32-S2 does not support 5GHz).
+## Setup Instructions
+1. **Install Software**:
+   - Download Visual Studio Code: [https://code.visualstudio.com/](https://code.visualstudio.com/).
+   - Install PlatformIO: In VS Code, go to Extensions, search “PlatformIO,” install.
+   - Open project: `File > Open Folder`, select this repository.
 
-Software
-
-Visual Studio Code with PlatformIO extension.
-Project files (provided in this folder).
-
-Setup Instructions
-
-Install Software:
-
-Download and install Visual Studio Code: https://code.visualstudio.com/
-Install the PlatformIO extension: In VS Code, go to Extensions, search for “PlatformIO,” and install.
-Open the project: In VS Code, select File > Open Folder and choose this project directory.
-
-
-Update Wi-Fi Credentials:
-
-Open src/HD-WF1-WF2-LED-MatrixPanel-DMA.ino.cpp in VS Code.
-Replace the placeholders with your 2.4GHz Wi-Fi network’s SSID and password:
-cppconst char *wifi_ssid = "YOUR_WIFI_NAME"; // Replace with your Wi-Fi name
-const char *wifi_pass = "YOUR_WIFI_PASSWORD"; // Replace with your Wi-Fi password
+2. **Update Wi-Fi Credentials**:
+   - Open `src/HD-WF1-WF2-LED-MatrixPanel-DMA.ino.cpp`.
+   - Replace placeholders with your 2.4GHz Wi-Fi SSID/password:
+     ```cpp
+     const char *wifi_ssid = "YOUR_WIFI_NAME";
+     const char *wifi_pass = "YOUR_WIFI_PASSWORD";
 
 Save the file.
 
 
 Wire Hardware:
 
-HUB75 Panel: Ensure the 64x32 LED panel is connected to the 75EX1 port (16-pin ribbon cable).
-Reset Button: Connect a push button to GPIO 12:
+HUB75 Panel: Connect 96x16 panel to 75EX1 port (16-pin ribbon cable).
+Start Button: Use pre-installed button (GPIO 11).
+Reset Button (Optional):
 
-One leg to GPIO 12, the other to ground.
-Add a 10kΩ resistor between GPIO 12 and 3.3V (pull-up configuration).
+Find GPIO 12 and 3.3V pins (see wf1_pcb_pins_1.jpg, wf1_pcb_pins_2.jpg in repository or board pinout).
+Connect one leg of push button to GPIO 12, other to GND.
+Add 10kΩ resistor between GPIO 12 and 3.3V (pull-up).
+Skip if pins are unclear; test with web interface and GPIO 11.
 
 
-Start Button: GPIO 11 already has a button on the HD-WF1.
-Power: Connect a 5V 4A power supply via Micro-USB or the 5V connector.
+Power: Use 5V 4A supply (Micro-USB or 5V connector, AU plug).
 
 
 Flash Firmware:
 
-Enter download mode: Bridge the two pads near the MicroUSB port on the HD-WF1.
-Connect the HD-WF1 to your computer using a USB-A to USB-A cable (plugged into the USB-A port on the HD-WF1).
-In PlatformIO (VS Code), click the “Build” button (checkmark icon) to compile the code.
-Click the “Upload” button (arrow icon) to flash the firmware.
-Open the Serial Monitor (115200 baud) to view the IP address (e.g., 192.168.1.100).
+Enter download mode: Bridge pads near MicroUSB port or hold GPIO 11 button while powering on, then release.
+Connect HD-WF1 to PC with USB-A to USB-A cable (USB-A port on HD-WF1).
+Install CP2102 driver: https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers.
+In PlatformIO, select huidu_hd_wf1 board, click “Build” then “Upload.”
+Open Serial Monitor (115200 baud) to view IP address (e.g., 192.168.1.100).
 
 
 
 Testing Instructions
 
-Verify Wi-Fi Connection:
+Verify Wi-Fi:
 
-Power on the HD-WF1.
-The LED panel displays “Connecting” followed by the IP address.
-If “Connecting” persists or no IP appears, check:
-
-Wi-Fi credentials are correct (2.4GHz network).
-Router is in range and operational.
-Restart the HD-WF1 by unplugging and replugging the power.
-
-
-Note the IP address from the LED panel or Serial Monitor.
+Power on HD-WF1; panel shows “Connecting” then IP address.
+If no IP, check Wi-Fi credentials, router (2.4GHz), or restart HD-WF1.
 
 
 Test Web Interface:
 
-Connect your phone to the same Wi-Fi network as the HD-WF1.
-Open a browser and enter the IP address (e.g., http://192.168.1.100).
-You should see:
-
-A heading: “Countdown Timer”
-A form with:
-
-“Time (sec)” number input (minimum 1 second, required).
-“Message” text input (max 20 characters, required).
-“Go” button.
-
-
-
-
-Test form submission:
-
-Enter a time (e.g., 60 for 1 minute).
-Enter a message (e.g., Time's Up!).
-Click “Go.”
-Verify the LED panel shows the countdown (e.g., 1:00, 0:59, ..., 0:00).
-Confirm the message displays when the timer reaches zero.
-
-
+On phone/PC (same Wi-Fi), open IP in browser (e.g., http://192.168.1.100).
+Verify form: “Countdown Timer” heading, “Time (sec)” (number, min 1), “Message” (max 15 characters), “Go” button.
+Submit time (e.g., 60) and message (e.g., Done!); check panel for countdown (MM:SS) and message at zero.
 
 
 Test Buttons:
 
-Press the start button (GPIO 11) to begin the countdown (same as clicking “Go”).
-Press the reset button (GPIO 12) to stop the timer and clear the LED panel.
-Ensure buttons respond reliably without multiple triggers.
+Press GPIO 11 (start) to begin countdown.
+Press GPIO 12 (reset, if wired) to clear timer/display.
+Ensure reliable button response.
 
 
 Test Edge Cases:
 
-Enter a negative or zero time (should not start the countdown).
-Enter a long message (>20 characters) to verify it truncates or displays correctly.
-Disconnect and reconnect Wi-Fi to ensure the web interface remains accessible.
-Restart the HD-WF1 to confirm consistent behavior.
+Negative/zero time (should not start).
+Message >15 characters (should truncate).
+Reconnect Wi-Fi; restart HD-WF1.
 
 
 Troubleshooting:
 
-No IP Address: Verify Wi-Fi credentials, router settings, and 2.4GHz compatibility. Check Serial Monitor for errors.
-Web Interface Not Loading: Ensure phone is on the same Wi-Fi network; retry the IP address.
-Display Issues: Confirm the HUB75 panel is 64x32 with a 16-pin ribbon cable connected to 75EX1.
-Button Issues: Check GPIO 12 wiring (pull-up resistor) and ensure GPIO 11 button is functional.
-Serial Output: Use PlatformIO’s Serial Monitor to view debug messages.
+No IP: Check Wi-Fi, router, Serial Monitor logs.
+Flashing Fails: Ensure USB-A cable, CP2102 driver, correct COM port, download mode.
+Display Issues: Confirm 96x16 panel, 16-pin cable to 75EX1.
+Button Issues: Verify GPIO 11; check GPIO 12 wiring if used.
 
 
 Feedback:
 
-Report the following to the developer:
-
-Does the web interface load and submit correctly?
-Does the timer display in MM:SS format and update smoothly?
-Does the message appear correctly when the timer reaches zero?
-Do the start and reset buttons work reliably?
-Any display alignment, text size, or button response issues?
-Confirm the HUB75 panel type (model, 16-pin connector).
-Share Serial Monitor logs if errors occur.
-
-
+Report web interface, timer, button, and display functionality.
+Share Serial Monitor logs for errors.
+Confirm panel is 96x16, 16-pin ribbon.
 
 
 
 Optional: Access Point Mode
-If you prefer not to use your Wi-Fi network or face connection issues, contact the developer for a version where the HD-WF1 creates its own Wi-Fi network (e.g., HD-WF1-Timer, password Timer1234). You would connect your phone to this network and access the web interface at 192.168.4.1.
-Notes
-
-The web interface is minimal for efficiency but can be styled if desired (contact the developer).
-Ensure the HUB75 panel is compatible (64x32, 16-pin ribbon cable).
-For issues or enhancements (e.g., larger font, different colors), provide detailed feedback.
+Contact developer for a version where HD-WF1 creates its own Wi-Fi (HD-WF1-Timer, password Timer1234, access at 192.168.4.1).
